@@ -1,6 +1,6 @@
 SPACE Invaders
 
-Play the [demo](http://kasirabbas.me/spaceInvaders/)
+Play the [Live demo](http://kasirabbas.me/spaceInvaders/)
 
 My first team building project with three other colleagues.
 
