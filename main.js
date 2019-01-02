@@ -3,32 +3,33 @@ const ctx = canvas.getContext("2d");
 
 //Variables to describe the spaceship container
 let x = canvas.width / 2; //The middle of the canvas
-let y = canvas.height/2;
+// let y = canvas.height - 40; // The height of the ship from the bottom
 let dx = 0.2; //number of pixels horizontally to move on redraw
-let dy = -20; //
+let dy = -20;
 
 let bulletSpeed = -7; //speed of bullet (vertical movement)
 let bulletDamage = 10 // damage of alien bullets
 
-let health = 100; //initial health of Player
-let playerLife = 5; //number of lives
-let score = 0; //score is set to zero;
-const shipWidth = 80; 
-const shipHeight = 80;
-let shipX = (canvas.width - shipWidth) / 2; //initial location of the ship (X axis)
-let shipY = canvas.height - (shipHeight + 70); //initial location of the ship (Y axis)
-const imgShip = new Image();
-imgShip.src = ".starfighter.svg";
-const imgHeart = new Image();
-imgHeart.src = ".heart.svg";
+let health = 100;
+let life = 5;
+let score = 0;
+let shipWidth = 80;
+let shipHeight = 80;
+let shipX = (canvas.width - shipWidth) / 2;
+let shipY = canvas.height - (shipHeight + 70);
+let shipTop = (canvas.height - (shipHeight + 20));
+let imgShip = new Image();
+imgShip.src = "./img/starfighter.svg";
+let imgHeart = new Image();
+imgHeart.src = "./img/heart.svg";
 
 
 //Variable to describe the aliens
 
-const alienColumnCount = 11;
-const alienRowCount = 5;
-const alienWidth = 60;
-const alienHeight = 60;
+let alienColumnCount = 11;
+let alienRowCount = 5;
+let alienWidth = 60;
+let alienHeight = 60;
 let alienPadding = 7;
 let alienOffSetTop = 70;
 let alienOffSetLeft = 5;
@@ -45,10 +46,10 @@ let imgAlien1 = new Image();
 let imgAlien2 = new Image();
 let imgAlien3 = new Image();
 let imgBoss = new Image();
-imgAlien1.src = './cooking-pot.svg'
-imgAlien2.src = './alien-bug.svg'
-imgAlien3.src = './scout-ship.svg'
-imgBoss.src ='./interceptor-ship.svg'
+imgAlien1.src = './img/cooking-pot.svg'
+imgAlien2.src = './img/alien-bug.svg'
+imgAlien3.src = './img/scout-ship.svg'
+imgBoss.src ='./img/interceptor-ship.svg'
 
 let aliens = [];
 let lives =[];
@@ -110,82 +111,44 @@ function keyUpHandler(e) {
 
 // functions to define the firing mechanics of the game
 
-const fireSound = () => {                 
+function fireSound() {                 
 var pew = new Audio('pew.wav');         
     pew.play();                        
 }
 
-const fire = (e) => {
+function fire(e){
     e.preventDefault();
-    console.log('Game in Progress? ', gameInProgress)
-    if(e.keyCode == 32 && gameInProgress){
-        console.log("hello")
+    if(e.keyCode == 32 & gameInProgress){
         if (!aliensDefeated || bossLoaded){
         let bullet = {x: bulletX, y: bulletY, status:1};
         if (bullets.length < 3){
         bullets.push(bullet);
         fireSound();
         }}
-    } else if (e.keyCode == 32 && !gameInProgress){
-        console.log("goodbye")
-
-        // e.preventDefault();
-        // loadScreenId = null;
-        // errorCheck();
-        // gameInit();
-        // spaceBalti();
-    } else {
-        //do nothing
-    }
+    } else if(e.keyCode == 32 & !gameInProgress) return;
 }
 
-const alienFire = (alienBulletX,alienBulletY) => {
+function alienFire(alienBulletX,alienBulletY){
         let alienBullet = {x: alienBulletX, y: alienBulletY, status:1};
         alienBullets.push(alienBullet);
 }
 
-const bossFire = (bossBulletX, bossBulletY) => {
+function bossFire(bossBulletX, bossBulletY){
     let bossBullet = {x: bossBulletX, y: bossBulletY, status:1}
     bossBullets.push(bossBullet)
-}
-
-const randomIndex = (min,max) => {
-    random = Math.floor(Math.random() * (max-min));
-    let randomIndex = min + random;
-    return randomIndex;
-}
-const selectAlien = () => {
-   if (!aliensDefeated){ 
-    let a = randomIndex(0, alienColumnCount)
-    let b = randomIndex(0, alienRowCount);
-    if (aliens[a][b].status === 1){
-        let alienBulletX =(aliens[a][b].x  + (alienWidth - bulletWidth)/2);
-        let alienBulletY= (aliens[a][b].y + alienHeight);
-        alienFire(alienBulletX,alienBulletY);
-        }   else selectAlien();
-    }
-}
-
-const bossGunsFire = () => {
-    if(bossLoaded){
-        let a = randomIndex(1,15)
-        if(boss.health > 0){
-            let bossBulletX = boss.x + a*(canvas.width*2/3/15)
-            let bossBulletY = bossY
-            bossFire(bossBulletX,bossBulletY);
-        }
-    }
 }
 
 
 const randomHeart = (x,y) => {
     let random = (Math.floor(Math.random()*100))/100;
-    if (random > 0.96) {                                //give a 4% chance of dropping a heart
+    console.log("random number = " + random)
+    if (random > 0.96) { //give a 4% chance of dropping a heart
         dropHeart(x,y)
+    } else{
+        console.log('didnt drop owt boss');
     }
 }
-
-const dropHeart = (X,Y) =>{
+function dropHeart(X,Y){
         let heart = {x: X, y: Y, status:1};
         hearts.push(heart);
 }
@@ -197,15 +160,13 @@ const dropHeart = (X,Y) =>{
 let bulletWidth = 3;
 let bulletHeight = 10;
 let bulletX = (shipX + (shipWidth - bulletWidth) / 2);
-let bulletY = shipY;
+let bulletY = shipTop;
 let bullets = [];
 let alienBullets = [];
 let alienFrequency = 300
 let bossBullets = [];
 let bossFrequency = 300
 let bossHealthBar
-
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // functions to draw the objects on the canvas
@@ -213,6 +174,100 @@ let bossHealthBar
 const drawShip = () => {
     ctx.drawImage(imgShip, shipX, shipY, shipWidth, shipHeight)
 };
+
+const moveShip = () => {
+    if (rightPressed && shipX < canvas.width - shipWidth) {
+        shipX += 7;
+        bulletX += 7;
+    } else if (leftPressed && shipX > 0) {
+        shipX -= 7;
+        bulletX -= 7;
+    }
+    if (bossDestroyed && shipY + shipHeight > 0){
+        shipY -= 7;
+    } else if (bossDestroyed && shipY + shipHeight <= 0){
+        shipY -= 0
+        gameOver();
+    }
+}
+const resetShip = () => {
+    end(drawScreenId)
+    end(selectAlienId)
+    shipX = (canvas.width - shipWidth) / 2;
+    shipY = canvas.height - (shipHeight + 70);
+    bulletX = (shipX + (shipWidth - bulletWidth) / 2);
+    if (gameInProgress){
+    setTimeout(function(){
+    drawScreenId = setInterval(draw,10)
+    selectAlienId = setInterval(selectAlien,alienFrequency)
+    },1500);}
+    alienBullets = [];
+    bullets=[];
+}
+
+const resetAliens = () =>{
+    aliens = [];
+    bullets = [];
+    alienBullets = [];
+    aliensDefeated = false;
+    deletedLeftColumns = 0;
+    deletedRows = 0;
+    deletedRightColumns = 0;
+    dx = 0.2;
+    dy = -20
+    alienOffSetLeft = 5;
+    alienOffSetTop = 70;
+    for (let c = 0; c < alienColumnCount; c++) {
+        aliens[c] = [];
+        for (let r = 0; r < alienRowCount; r++) {
+            aliens[c][r] = {
+                x: 0,
+                y: 0,
+                status: 1
+            };
+        }
+    }
+    
+}
+
+const resetScore = () => {
+    health = 100;
+    life = 5;
+    score = 0;
+}
+
+const resetBoss = () =>{
+    boss = {
+        x: 0,
+        y: 0,
+        health: 300,
+        lives:2
+    }
+    bossPadding = canvas.width/6;
+    bossBullets = [];
+    bossFrequency = 300;
+    bossX = 0;
+    bossY = 0;
+    bossDY = 0.01*dy
+    bossDX = 1;
+    bossLoaded = false;
+    bossDefeated = false;
+    bossDestroyed = false;
+
+}
+
+const resetBossFight = () =>{
+    end(bossGunsId)
+    end(bossScreenId)
+    setTimeout(function(){
+        shipX = (canvas.width - shipWidth) / 2;
+        bulletX = (shipX + (shipWidth - bulletWidth) / 2);
+        bossGunsId = setInterval(bossGunsFire,bossFrequency)
+        bossScreenId = setInterval(drawBossScreen,10)
+    },1000);
+    bossBullets = [];
+    bullets = []
+}
 
 const drawBullet = (array, speed, color) => {
     for (let i = 0; i < array.length; i++) {
@@ -270,6 +325,12 @@ const drawBoss = ()=>{
     ctx.drawImage(imgBoss,boss.x,boss.y, canvas.width*2/3, canvas.height*2/3)
 }
 
+const speedUpBoss = ()=> {
+    bossFrequency = bossFrequency/1.66;
+    end(bossGunsId);
+    bossGunsId = setInterval(bossGunsFire,bossFrequency)
+}
+
 const drawBossHealth = ()=>{
     if (boss.health === 0 && boss.lives >0){
         boss.health = 300;
@@ -310,17 +371,32 @@ const drawHealth = () => {
     ctx.fillRect (110,canvas.height - 35,(100 - (100 - health))*2,20);
 }
 
+
+
+const checkLife = () =>{
+    if (health === 0 && life > 0){
+        life -=1;
+        aliensDefeated ? resetBossFight():resetShip();
+        lives[life].status=0;
+        health = 100;
+    }
+    if (health > 100){
+        life += 1;
+        health = health -100;
+    }
+}
+
 const drawLife = () =>{
     fillText("LIVES: ", 79 ,canvas.height - 45, 'lime', 17);
  
-    for (c=0;c<playerLife;c++){
+    for (c=0;c<life;c++){
         lives[c]={
             x:0,
             y:0,
             status:1
         }
     }
-    for (c=0;c<playerLife;c++){
+    for (c=0;c<life;c++){
         if (lives[c].status===1){
         let lifeX = c * (30 + alienPadding) + (50+ ctx.measureText("LIVES: ").width)
         let lifeY = (canvas.height - 65)
@@ -335,189 +411,61 @@ const drawScore = () => {
     fillText("SCORE: "+ score, 630, 685, "lime", 40)
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// functions to move the items on every refresh of the game
-
-const moveShip = () => {
-    if (rightPressed && shipX < canvas.width - shipWidth) {
-        shipX += 7;
-        bulletX += 7;
-    } else if (leftPressed && shipX > 0) {
-        shipX -= 7;
-        bulletX -= 7;
-    }
-    if (bossDestroyed && shipY + shipHeight > 0){
-        shipY -= 7;
-    } else if (bossDestroyed && shipY + shipHeight <= 0){
-        shipY -= 0
-        gameOver();
-    }
-}
-
-const moveAliens = () => {
-    firstColumnHandler();
-    lastColumnHandler();
-    lastRowHandler();
-    drawBullet(alienBullets,-bulletSpeed,'red');
-    alienOffSetLeft+=dx;
-
-if (alienOffSetLeft > canvas.width - alienWidth * (alienColumnCount - deletedRightColumns) - 70 || alienOffSetLeft + (deletedLeftColumns * alienWidth) < 5) {
-    dx = -dx;
-    alienOffSetTop -= dy
-}
-if (canvas.height - ((alienRowCount - deletedRows) * (alienHeight + alienPadding) + alienOffSetTop) > shipHeight * 2) {
-    dy = dy;
-} else {
-    lives -=1;
-    resetAliens();
-}
-};
-
-const moveBoss = () => {
-    bossY -= bossDY
-if (bossY>200){
-    bossLoaded = true;
-}
-if (bossLoaded){
-    bossPadding += bossDX;
-}
-if (bossLoaded && (bossPadding>canvas.width-(canvas.width*2/3)||bossPadding<0)){
-    bossDX = -bossDX;
-}
-if (!bossDefeated && bossLoaded && (bossY>
-    canvas.height/3||bossY<100)){
-    bossDY = -bossDY
-}
-if(bossDefeated){
-    bossDX = 0;
-    if (bossY>0-canvas.width*1/3+bossPadding){
-        bossDY = 0.5
-    } else {
-        bossDY = 0
-        bossDestroyed = true;
-    }
-}
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-const resetShip = () => {
-    end(drawScreenId)
-    end(selectAlienId)
-    shipX = (canvas.width - shipWidth) / 2;
-    shipY = canvas.height - (shipHeight + 70);
-    bulletX = (shipX + (shipWidth - bulletWidth) / 2);
-    if (gameInProgress){
-    setTimeout(function(){
-    drawScreenId = setInterval(draw,10)
-    selectAlienId = setInterval(selectAlien,alienFrequency)
-    },1500);}
-    alienBullets = [];
-    bullets=[];
-}
-
-const resetAliens = () =>{
-    aliens = [];
-    bullets = [];
-    alienBullets = [];
-    aliensDefeated = false;
-    deletedLeftColumns = 0;
-    deletedRows = 0;
-    deletedRightColumns = 0;
-    dx = 0.2;
-    dy = -20
-    alienOffSetLeft = 5;
-    alienOffSetTop = 70;
-    for (let c = 0; c < alienColumnCount; c++) {
-        aliens[c] = [];
-        for (let r = 0; r < alienRowCount; r++) {
-            aliens[c][r] = {
-                x: 0,
-                y: 0,
-                status: 1
-            };
-        }
-    }
-    
-}
-
-const resetScore = () => {
-    health = 100;
-    playerLife = 5;
-    score = 0;
-}
-
-const resetBoss = () =>{
-    boss = {
-        x: 0,
-        y: 0,
-        health: 300,
-        lives:2
-    }
-    bossPadding = canvas.width/6;
-    bossBullets = [];
-    bossFrequency = 300;
-    bossX = 0;
-    bossY = 0;
-    bossDY = 0.01*dy
-    bossDX = 1;
-    bossLoaded = false;
-    bossDefeated = false;
-    bossDestroyed = false;
-
-}
-
-const resetBossFight = () =>{
-    end(bossGunsId)
-    end(bossScreenId)
-    setTimeout(function(){
-        shipX = (canvas.width - shipWidth) / 2;
-        bulletX = (shipX + (shipWidth - bulletWidth) / 2);
-        bossGunsId = setInterval(bossGunsFire,bossFrequency)
-        bossScreenId = setInterval(drawBossScreen,10)
-    },1000);
-    bossBullets = [];
-    bullets = []
-}
-
-
-const speedUpBoss = ()=> {
-    bossFrequency = bossFrequency/1.66;
-    end(bossGunsId);
-    bossGunsId = setInterval(bossGunsFire,bossFrequency)
-}
-
-
-
-
-const checkLife = () =>{
-    if (health === 0 && playerLife > 0){    // this function listens out for health reaching 0
-        playerLife -=1;                     // reduces lives by 1        
-        aliensDefeated ?                    // depending on whether the player is in the boss screen
-        resetBossFight():resetShip();       // or regular screen decides how the player is reset
-        lives[playerLife].status=0;         // sets the life icon status to 0 so it isn't drawn
-        health = 100;                       // health is reset to 100
-    }
-    if (health > 100){          // In the event of the player receiving a health boost when near full health
-        playerLife += 1;        // instead of increasing Health to > 100, it is capped and then player lives 
-        health = health -100;   // goes up by one. Allows for futureproofing of a Life drop that would only
-                                // need to increase health by 100 instead of altering the playerLives variable
-    }
-}
-
-
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // functions to select a random alien to fire back
 
+const randomIndex = (min,max) => {
+    random = Math.floor(Math.random() * (max-min));
+    let randomIndex = min + random;
+    return randomIndex;
+}
+const selectAlien = () => {
+   if (!aliensDefeated){ 
+    let a = randomIndex(0, alienColumnCount)
+    let b = randomIndex(0, alienRowCount);
+    if (aliens[a][b].status === 1){
+        let alienBulletX =(aliens[a][b].x  + (alienWidth - bulletWidth)/2);
+        let alienBulletY= (aliens[a][b].y + alienHeight);
+        alienFire(alienBulletX,alienBulletY);
+    }else selectAlien();
+}
+}
+
+const bossGunsFire = () => {
+    if(bossLoaded){
+        let a = randomIndex(1,15)
+        if(boss.health > 0){
+            let bossBulletX = boss.x + a*(canvas.width*2/3/15)
+            let bossBulletY = bossY
+            bossFire(bossBulletX,bossBulletY);
+        }
+    }
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //functions to move the aliens 
 
+const moveAliens = () => {
+        firstColumnHandler();
+        lastColumnHandler();
+        lastRowHandler();
+        drawBullet(alienBullets,-bulletSpeed,'red');
+        alienOffSetLeft+=dx;
 
+    if (alienOffSetLeft > canvas.width - alienWidth * (alienColumnCount - deletedRightColumns) - 70 || alienOffSetLeft + (deletedLeftColumns * alienWidth) < 5) {
+        dx = -dx;
+        alienOffSetTop -= dy
+    }
+    if (canvas.height - ((alienRowCount - deletedRows) * (alienHeight + alienPadding) + alienOffSetTop) > shipHeight * 2) {
+        dy = dy;
+    } else {
+        lives -=1;
+        resetAliens();
+    }
+};
 
 const lastRowHandler = () => {
     let lastRow = [];
@@ -559,13 +507,11 @@ const firstColumnHandler = () =>{
 }
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-const gameReset = (e) =>{
-    if (e.keyCode === 13 & bossDestroyed){
-        gameInit();
-    }
-}
 
-const gameInit = ()=>{
+
+
+const gameInit = (e)=>{
+    if (e.keyCode === 13 && bossDestroyed){
        
     rightPressed = false;
     leftPressed = false;
@@ -586,7 +532,8 @@ const gameInit = ()=>{
     resetScore();
     resetBoss();
  
-    runGame();
+    spaceBalti();
+}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -659,14 +606,12 @@ const bossCollisionDetection = ()=>{
 const pauseFunction = (e) =>{
     if(gameInProgress){
     if(e.keyCode === 80){
-        
         pause = !pause;
-        if (pause && !aliensDefeated){
+        if (pause & !aliensDefeated){
             console.log('paused')
             end(drawScreenId)
             end(selectAlienId)
             pausedScreenId = setInterval(pauseScreen,10)
-            errorCheck();
         } else if(!pause && !aliensDefeated){
             console.log('unpaused')
             end(pausedScreenId)
@@ -678,7 +623,7 @@ const pauseFunction = (e) =>{
             end(bossGunsId)
             pausedScreenId = setInterval(pauseScreen,10)
         } else if (!pause && aliensDefeated && bossLoaded){
-            console.log('unpaused')
+            console.log('paused')
             end(pausedScreenId)
             bossScreenId = setInterval(drawBossScreen,10)
             bossGunsId = setInterval(bossGunsFire,bossFrequency)
@@ -689,49 +634,12 @@ const pauseFunction = (e) =>{
 
 const pauseScreen = () =>{
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    blinkingText('PAUSED',x,y,500,'lime',60);
-    blinkingText('Press P to unpause',x, canvas.height/1.75,500,'lime',40)
+    blinkingText('PAUSED',canvas.width/2,canvas.height/2,500,'lime',60);
+    blinkingText('Press P to unpause',canvas.width/2, canvas.height/1.75,500,'lime',40)
 }
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CREDITS SCREEN
-let creditsScreenDisplayed = false;
-let creditScreenId = undefined;
-
-const creditsScreen = ()=>{
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    fillText('CREDITS', x, y, 'lime', 40);
-    fillText('Developed by',x,y+40,'lime',30);
-    fillText('Andrew Beattie, Jake Francis, Kasir Abbas, Elliot Wood', x,y+70,'lime',20);
-    fillText('Game icons from: game-icons.net',x,y+100,'lime',25);
-};
-
-const creditsScreenFunction = (e) =>{
-    if(!enterPressed && !gameInProgress){
-        if (e.keyCode === 67){
-            creditsScreenDisplayed = !creditsScreenDisplayed;
-            if (creditsScreenDisplayed){
-                end(spaceBalti);
-                end(loadScreenId);
-                loadScreenId = undefined;
-                creditScreenId = setInterval(creditsScreen,10);
-                console.log('credits shown - error check')
-                errorCheck();
-            } else if (!creditsScreenDisplayed){
-                console.log('credits hidden');
-                end(creditScreenId);
-                creditScreenId = null;
-                runGame();
-            }
-        }
-    }
-}
-
-
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 const deathCheck = () =>{
-    if(playerLife <= 0) {
+    if(life <= 0) {
         gameOver();
   }
 }
@@ -777,11 +685,33 @@ let bossDX = 1;
 let bossLoaded = false;
 let bossDestroyed = false;
 
-
+const moveBoss = () => {
+        bossY -= bossDY
+    if (bossY>200){
+        bossLoaded = true;
+    }
+    if (bossLoaded){
+        bossPadding += bossDX;
+    }
+    if (bossLoaded && (bossPadding>canvas.width-(canvas.width*2/3)||bossPadding<0)){
+        bossDX = -bossDX;
+    }
+    if (!bossDefeated && bossLoaded && (bossY>
+        canvas.height/3||bossY<100)){
+        bossDY = -bossDY
+    }
+    if(bossDefeated){
+        bossDX = 0;
+        if (bossY>0-canvas.width*1/3+bossPadding){
+            bossDY = 0.5
+        } else {
+            bossDY = 0
+            bossDestroyed = true;
+        }
+    }
+}
         
 const draw = () => {
-    errorCheck();
-    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     fillText('WAVE: ' + (3-waves),canvas.width/2,40, 'lime',35);
     drawShip();
@@ -815,9 +745,8 @@ let bossScreenId = null;
 let bossGunsId = null;
 
 const end = (func) => {
-    clearInterval(func) 
+    clearInterval(func)
     func = null;
-    console.log(typeof(null));
 }
 
 
@@ -841,12 +770,10 @@ const loadScreen = () => {
     blinkingText('Press Enter', canvas.width / 2, canvas.height / 2, 500, '#00FF00', 60);
     fillText("Left: ←     Right: → ", canvas.width / 2, canvas.height / 1.75, '#00ff00', 25);
     fillText('Fire: Space     Pause: P', canvas.width/2,canvas.height/1.60, 'lime',25);
-    fillText("Press C for credits", canvas.width-90, canvas.height - 20,'lime',20)
 }
 
 const playGame = () => {
     end(loadScreenId)
-    console.log('This is loadscreen ' + loadScreenId);
     drawScreenId = setInterval(draw, 10)
     selectAlienId = setInterval(selectAlien, alienFrequency);
 }
@@ -890,7 +817,7 @@ const gameOver = () => {
     end(bossScreenId)
     end(bossGunsId);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    let finalScore = Math.floor((score * (1+playerLife) * (1+(health/100))));
+    let finalScore = Math.floor((score * (1+life) * (1+(health/100))));
     ctx.font = '60px Arial';
     ctx.fillStyle = 'lime';
     ctx.fillText("GAME OVER ", canvas.width / 2, canvas.height / 2);
@@ -899,46 +826,28 @@ const gameOver = () => {
     bossDestroyed = true;
     }
 
-const spaceBalti = (e) => {
-if (e.keyCode == 13){
-    runGame();
-}
-}
-
-const runGame = () =>{
-    errorCheck();
-    if (!enterPressed && !gameInProgress && !creditsScreenDisplayed) {
-        console.log("this is loadscreen ID ", loadScreenId);
+const spaceBalti = () => {
+    if (!enterPressed && !gameInProgress) {
+        console.log("this is loadscreen " + loadScreenId);
         loadScreenId = setInterval(loadScreen,10);
     } else {
         end(loadScreenId)
         loadScreenId = null;
-        console.log ('close log screen, loadscreenId = ' , loadScreenId)
+        console.log ('close log screen, loadscreenId = ' + loadScreenId)
     }
     if (enterPressed === true && !gameInProgress) {
         enterPressed = false;
         gameInProgress = true;
         playGame();
     }
+
 }
 
-const errorCheck = ()=>{
-    console.log('LoadScreenID = ' + loadScreenId);
-    console.log("PauseScreenID = " + pausedScreenId);
-    console.log('BossScreenID - ' + bossScreenId);
-    console.log('Boss Guns ID = ' + bossGunsId);
-    console.log('Credits Screen ID = ' + creditScreenId);
-    console.log('Draw Screen ID = ' + drawScreenId);
-    console.log('Alien Select ID = ' + selectAlienId);
-}
-
-runGame();
-
+spaceBalti();
 
 document.addEventListener("keydown", keyDownHandler, false)
 document.addEventListener("keyup", keyUpHandler, false)
-document.addEventListener("keydown",spaceBalti,false)
+document.addEventListener('keydown', spaceBalti, false)
 document.addEventListener('keydown',pauseFunction,false)
-document.addEventListener('keydown',gameReset,false)
+document.addEventListener('keydown',gameInit,false)
 document.addEventListener('keydown', fire, false)
-document.addEventListener('keydown',creditsScreenFunction,false);
