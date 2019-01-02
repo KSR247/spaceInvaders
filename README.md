@@ -12,7 +12,7 @@ FAQ
 
 Why is it called Space Balti?
 
-Inside team joke, discussing the team meaning of a chicken balti, which still is and always will mean chicken Bucket. 
+Inside team joke, discussing the meaning of a chicken balti.
 
 Thank You for reading
 
