@@ -1,5 +1,7 @@
 SPACE Invaders
 
+Play the (demo)[http://kasirabbas.me/spaceInvaders/.]
+
 My first team building project with three other colleagues.
 
 The Goal: Build the best version of Space Invaders
